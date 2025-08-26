@@ -1,0 +1,11 @@
+
+cd /Users/denaclink/Documents/BirdNETUpdate/BirdNET-Analyzer
+conda activate birdnet-analyzer
+
+
+# Crested gibbons
+python train.py --i '/Users/denaclink/Desktop/RStudioProjects/Jahoo-male-gibbon/data/acousticdata/' --o '/Users/denaclink/Desktop/RStudioProjects/Jahoo-male-gibbon/models/MF_Nomascus_Classifier.tflite' --fmin 500 --fmax 3000
+
+'/Users/denaclink/Library/CloudStorage/Box-Box/Cambodia 2022/Acoustics Gibbon PAM_08_07_23/SD 002/R1050_000'
+
+python analyze.py --i '/Users/denaclink/Library/CloudStorage/Box-Box/Cambodia 2022/Acoustics Gibbon PAM_08_07_23/SD 002/R1050_000' --classifier '/Users/denaclink/Desktop/RStudioProjects/Jahoo-male-gibbon/models/MF_Nomascus_Classifier.tflite' --o '/Users/denaclink/Desktop/RStudioProjects/Jahoo-male-gibbon/data/BirdNETOutput/' --fmin 500 --fmax 3000

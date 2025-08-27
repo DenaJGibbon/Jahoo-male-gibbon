@@ -28,6 +28,9 @@ for(a in 1:length(FullFiles)){
 }
 }
 
+
+# 1-s clips ---------------------------------------------------------------
+
 # Create spectrogram images from your labeled .wav files
 spectrogram_images(
   trainingBasePath = "/Users/denaclink/Desktop/RStudioProjects/Jahoo-male-gibbon/data/acousticdata_forResNet1s/",
@@ -70,7 +73,6 @@ gibbonNetR::train_CNN_multi(input.data.path=input.data.path,
                             noise.category = "noise")
 
 
-'/Users/denaclink/Desktop/RStudioProjects/Jahoo-male-gibbon/testdata'
 
 
 # Specify model path
@@ -80,7 +82,8 @@ Labels <- dput(list.files(test.data.path <- 'data/acousticdata_images1s/test/'))
 
 # Deploy trained model over sound files
 deploy_CNN_multi(
-  clip_duration = 1,
+  clip_duration = 2,
+  hop_size = 2,
   architecture = "resnet50",
   output_folder = '/Users/denaclink/Desktop/RStudioProjects/Jahoo-male-gibbon/ResNet_automatedetection/images/',
   output_folder_selections = '/Users/denaclink/Desktop/RStudioProjects/Jahoo-male-gibbon/ResNet_automatedetection/selections/',
@@ -92,7 +95,76 @@ deploy_CNN_multi(
   save_wav = T,
   class_names = Labels,
   noise_category = "noise",
-  single_class = FALSE,
-  threshold = .1,
+  single_class = TRUE,
+  single_class_category = "female Nomascus gabriellae _ female crested gibbon" ,
+  threshold = .5,
   max_freq_khz = 3
 )
+
+
+# Longer clips ------------------------------------------------------------
+# Create spectrogram images from your labeled .wav files
+spectrogram_images(
+  trainingBasePath = "/Users/denaclink/Desktop/RStudioProjects/Jahoo-male-gibbon/data/acousticdata_forResNet/",
+  outputBasePath = "/Users/denaclink/Desktop/RStudioProjects/Jahoo-male-gibbon/data/acousticdata_images/",
+  minfreq.khz = 0.5,
+  maxfreq.khz = 3.0,
+  random = FALSE,
+  splits = c(0.6, 0.2, 0.2), # Adjust training, validation, and test split as needed
+  new.sampleratehz = "NA"
+)
+
+
+# Location of spectrogram images for training
+input.data.path <-  'data/acousticdata_images/'
+
+# Location of spectrogram images for testing
+test.data.path <- 'data/acousticdata_images/test/'
+
+# User specified training data label for metadata
+trainingfolder.short <- 'jahooMFlong'
+
+# Specify the architecture type
+architecture <- c('resnet50') # Choose 'alexnet', 'vgg16', 'vgg19', 'resnet18', 'resnet50', or 'resnet152'
+
+# We can specify the number of epochs to train here
+epoch.iterations <- c(5)
+
+# Function to train a multi-class CNN
+gibbonNetR::train_CNN_multi(input.data.path=input.data.path,
+                            architecture =architecture,
+                            learning_rate = 0.001,
+                            class_weights = c(0.4, 0.4,  0.2),
+                            test.data=test.data.path,
+                            unfreeze.param = TRUE,
+                            epoch.iterations=epoch.iterations,
+                            save.model= TRUE,
+                            early.stop = "yes",
+                            output.base.path = "/Users/denaclink/Desktop/RStudioProjects/Jahoo-male-gibbon/ResNet_model/",
+                            trainingfolder=trainingfolder.short,
+                            noise.category = "noise")
+
+ModelPath <- '/Users/denaclink/Desktop/RStudioProjects/Jahoo-male-gibbon/ResNet_model/_jahooMFlong_multi_unfrozen_TRUE_/_jahooMFlong_5_resnet50_model.pt'
+
+Labels <- dput(list.files(test.data.path <- 'data/acousticdata_images1s/test/'))
+
+# Deploy trained model over sound files
+deploy_CNN_multi(
+  clip_duration = 12,
+  architecture = "resnet50",
+  output_folder = '/Users/denaclink/Desktop/RStudioProjects/Jahoo-male-gibbon/ResNet_automatedetectionfull/images/',
+  output_folder_selections = '/Users/denaclink/Desktop/RStudioProjects/Jahoo-male-gibbon/ResNet_automatedetectionfull/selections/',
+  output_folder_wav = '/Users/denaclink/Desktop/RStudioProjects/Jahoo-male-gibbon/ResNet_automatedetectionfull/wavs/',
+  detect_pattern = NA,
+  top_model_path = ModelPath,
+  path_to_files = '/Users/denaclink/Desktop/RStudioProjects/Jahoo-male-gibbon/testdata',
+  downsample_rate = "NA",
+  save_wav = T,
+  class_names = Labels,
+  noise_category = "noise",
+  single_class = TRUE,
+  single_class_category = "male Nomascus gabriellae _ male crested gibbon" ,
+  threshold = .9,
+  max_freq_khz = 3
+)
+

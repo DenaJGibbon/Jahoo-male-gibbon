@@ -368,8 +368,8 @@ iou_long <- iou_table %>%
                names_to = "Metric", values_to = "IoU") %>%
   mutate(
     Metric = recode(Metric,
-                    MeanIoU_misses = "Mean IoU (misses=0)",
-                    MeanIoU_hits   = "Mean IoU (hits only)"),
+                    MeanIoU_misses = "Include FN",
+                    MeanIoU_hits   = "No FN"),
     Sex  = factor(Sex,  levels = c("F","M")),
     File = factor(File, levels = c("File 1","File 2"))
   )
